@@ -10,8 +10,8 @@ import '../../data/models/auth/user_model.dart';
 import '../../providers/auth_provider.dart';
 
 class CloudinaryService {
-  static const String cloudName = 'dcyexv5li';
-  static const String uploadPreset = 'bara_profile';
+  static const String cloudName = 'dvbe0kyao';
+  static const String uploadPreset = 'bara';
 
   static Future<String?> uploadImage(File imageFile) async {
     try {
