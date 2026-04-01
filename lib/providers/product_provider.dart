@@ -16,8 +16,34 @@ class ProductProvider extends ChangeNotifier {
 
   Stream<List<Product>> get productsStream => FirestoreService.getProducts();
 
-  List<Product> get inStockProducts => _products.where((p) => p.isInStock).toList();
-  List<Product> get outOfStockProducts => _products.where((p) => p.isOutOfStock).toList();
+  List<Product> get inStockProducts =>
+      _products.where((p) => p.isInStock).toList();
+  List<Product> get outOfStockProducts =>
+      _products.where((p) => p.isOutOfStock).toList();
+
+  Future<void> fetchProducts() async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      FirestoreService.getProducts().listen(
+        (products) {
+          _products = products;
+          _isLoading = false;
+          notifyListeners();
+        },
+        onError: (error) {
+          _error = error.toString();
+          _isLoading = false;
+          notifyListeners();
+        },
+      );
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
 
   void loadProducts(Stream<List<Product>> stream) {
     stream.listen(
@@ -44,7 +70,7 @@ class ProductProvider extends ChangeNotifier {
 
     try {
       String? imageUrl;
-      
+
       if (image != null) {
         imageUrl = await _uploadImage(image);
       }

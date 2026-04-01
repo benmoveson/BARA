@@ -32,7 +32,7 @@ class _MainShellState extends State<MainShell> {
   @override
   void initState() {
     super.initState();
-    _loadData();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadData());
   }
 
   void _loadData() {
@@ -41,7 +41,7 @@ class _MainShellState extends State<MainShell> {
     final debtProvider = context.read<DebtProvider>();
     final activityProvider = context.read<ActivityProvider>();
 
-    productProvider.loadProducts(productProvider.productsStream);
+    productProvider.fetchProducts();
     saleProvider.loadDashboardData();
     debtProvider.loadDebtsStream(debtProvider.debtsStream);
     activityProvider.loadActivitiesStream(activityProvider.activitiesStream);

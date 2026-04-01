@@ -284,7 +284,7 @@ class ProfileScreen extends StatelessWidget {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => const AlertDialog(
+      builder: (ctx) => const AlertDialog(
         content: Row(
           children: [
             CircularProgressIndicator(),
@@ -295,29 +295,54 @@ class ProfileScreen extends StatelessWidget {
       ),
     );
 
-    final imageUrl = await CloudinaryService.uploadImage(imageFile);
+    try {
+      final imageUrl = await CloudinaryService.uploadImage(imageFile);
 
-    if (context.mounted) Navigator.pop(context);
+      if (!context.mounted) return;
+      Navigator.pop(context);
 
-    if (imageUrl != null && authProvider.user != null) {
-      final updatedUser = authProvider.user!.copyWith(
-        profilePicture: imageUrl,
-      );
-      await authProvider.updateProfile(updatedUser);
+      if (imageUrl != null) {
+        if (authProvider.user != null) {
+          final updatedUser = authProvider.user!.copyWith(
+            profilePicture: imageUrl,
+          );
+          await authProvider.updateProfile(updatedUser);
 
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Profile picture updated!'),
-            backgroundColor: Colors.green,
-          ),
-        );
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Profile picture updated!'),
+                backgroundColor: Colors.green,
+              ),
+            );
+          }
+        } else {
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('No user logged in'),
+                backgroundColor: AppColors.error,
+              ),
+            );
+          }
+        }
+      } else {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content:
+                  Text('Failed to upload image. Check Cloudinary settings.'),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        }
       }
-    } else {
+    } catch (e) {
       if (context.mounted) {
+        Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Failed to upload image. Please try again.'),
+          SnackBar(
+            content: Text('Error: $e'),
             backgroundColor: AppColors.error,
           ),
         );
